@@ -19,8 +19,7 @@ def create_sample_dataframe():
     data = {
         'name': ['Alice', 'Bob', 'Charlie', 'David', 'Eve'],
         'city': ['New York', 'London', 'Tokyo', 'Paris', 'Sydney'],
-        'age': [25, 30, 22, 35, 28],
-        'salary': [50000, 60000, 45000, 70000, 55000]
+        'age': [25, 30, 22, 35, 28]
     }
     return pd.DataFrame(data)
 
