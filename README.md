@@ -24,3 +24,8 @@ if you run the workflow file, it will validate actual python file and test
 
 
 ![image](https://github.com/user-attachments/assets/7c0b0b66-b7a1-4fb9-9bc8-2439c92afd9c)
+
+
+# Secret & Dependency Security
+
+![image](https://github.com/user-attachments/assets/98c68866-64e9-49d8-b304-80369e8b20fe)
