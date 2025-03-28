@@ -1,0 +1,38 @@
+name: Enforce Code Review for SOX
+
+on:
+  pull_request:
+    branches:
+      - main  # Or your production branch
+
+jobs:
+  code_review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check for Required Approvals
+        uses: actions/github-script@v6
+        id: check_approvals
+        with:
+          script: |
+            const requiredApprovals = 2; // Set the number of required approvals
+            const approvals = context.payload.pull_request.approved;
+            const reviewers = context.payload.pull_request.requested_reviewers;
+
+            if (!approvals) {
+              core.setFailed('Code review is required for merging to main.');
+              return;
+            }
+
+            if (approvals.length < requiredApprovals) {
+              core.setFailed(`At least ${requiredApprovals} approvals are required to merge to main.`);
+              return;
+            }
+            console.log('Code review requirements met.');
+
+      - name: Block Merge (if necessary)
+        if: steps.check_approvals.outcome == 'failure'
+        run: exit 1
