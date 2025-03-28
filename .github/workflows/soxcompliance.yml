@@ -1,19 +1,59 @@
-name: Enforce Code Review for SOX
+name: SOX Compliant CI/CD
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
-      - main  # Or your production branch
+      - main
 
 jobs:
-  code_review:
+  build_and_test:
     runs-on: ubuntu-latest
+    outputs:
+      artifact_path: ${{ steps.build.outputs.artifact_path }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Tests
+        id: test
+        run: |
+          source venv/bin/activate
+          pytest --junitxml=test-results.xml  # Generate JUnit report
+          echo "::set-output name=test_result::${{ job.status }}"
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results.xml
+
+      - name: Build Artifact (Example)
+        id: build
+        run: |
+          # Replace with your actual build process (e.g., build a Python package)
+          mkdir -p build_output
+          echo "Built artifact" > build_output/artifact.txt
+          echo "::set-output name=artifact_path::build_output"
+
       - name: Check for Required Approvals
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
         id: check_approvals
         with:
@@ -34,5 +74,29 @@ jobs:
             console.log('Code review requirements met.');
 
       - name: Block Merge (if necessary)
-        if: steps.check_approvals.outcome == 'failure'
+        if: github.event_name == 'pull_request' && steps.check_approvals.outcome == 'failure'
         run: exit 1
+
+  deploy:
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: test-results
+
+      - name: Show Results
+        run: |
+          echo "Test results downloaded"
+          ls -l
+
+      - name: Deploy (Example - Placeholder)
+        if: github.ref == 'refs/heads/main' && needs.build_and_test.result == 'success'
+        run: |
+          # Replace this with your actual deployment logic
+          echo "Deploying artifact: ${{ needs.build_and_test.outputs.artifact_path }}"
+          echo "Deployment successful (placeholder)"
