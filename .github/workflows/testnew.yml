@@ -1,8 +1,8 @@
 name: Build and Deploy Java JAR (Gradle)
 
 on:
-  push:
-    branches: [ "main" ]
+  # FIX: The trigger requires a map structure, not a bare key.
+  workflow_dispatch: 
 
 jobs:
   build:
@@ -16,5 +16,5 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: '17' # Ensure java-version is a string
           cache: gradle
