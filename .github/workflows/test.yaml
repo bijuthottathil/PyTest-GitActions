@@ -1,0 +1,14 @@
+name : mydeployment
+on: 
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs on : ubuntu:latest
+
+    steps: 
+      name : Checkout code
+      uses : action/Checkout@v4   
+
+    name : setup Python
+    uses : actions/setup-python@v4 
